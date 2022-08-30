@@ -7,7 +7,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonArrayRequest
+import com.android.volley.toolbox.Volley
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -15,42 +20,48 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 
-class MainActivity : AppCompatActivity(), OnMapReadyCallback {
+class MainActivity : AppCompatActivity() {
     private lateinit var mMap2: GoogleMap
     private var mapFragment: SupportMapFragment?=null
+    lateinit var adapter:InfoWindowAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
         setUpMap()
+
     }
     private fun setUpMap(){
+        adapter= InfoWindowAdapter(this)
         mapFragment=supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment!!.getMapAsync(this)
+        mapFragment!!.getMapAsync(adapter)
+        val lstFacultades = ArrayList<ModelFacultad>()
+        var marker:MarkerOptions
+        var coordenadas:LatLng
+        val cola = Volley.newRequestQueue(this)
+        var url="https://62ff92289350a1e548e1bee5.mockapi.io/Uteq_locations"
+        var request= JsonArrayRequest(Request.Method.GET,url,null,{
+                respuesta->try{
+            for (i in 0 until respuesta.length()){
+                var item = respuesta.getJSONObject(i)
+                lstFacultades.add(ModelFacultad(item))
+            }
+
+            adapter.marcadores(lstFacultades)
+
+        }catch (error:Exception){
+            Toast.makeText(this,
+                "Error al cargar los datos "+error.message,
+                Toast.LENGTH_SHORT).show()
+        }
+        }, {
+            Toast.makeText(this,
+                "Error al cargar los datos",
+                Toast.LENGTH_SHORT).show()
+        })
+        cola.add(request)
     }
-    override fun onMapReady(googleMap: GoogleMap) {
 
-        val sydney1 = LatLng(-1.0806393666468161, -79.50239673786432)
-        val sydney2 = LatLng(-1.0796695, -79.5025683)
-
-        val markerView= (getSystemService(LAYOUT_INFLATER_SERVICE) as LayoutInflater).inflate(R.layout.cardview_info, null)
-        val facu = markerView.findViewById<TextView>(R.id.txtFacu)
-        val cardView = markerView.findViewById<CardView>(R.id.markerCardView)
-        val decano = markerView.findViewById<TextView>(R.id.txtDecano)
-
-        facu.text="FACULTAD DE CIENCIAS PECUARIAS"
-        decano.text="Decano: Ítalo Espinoza, PhD"
-        val bitmap1= Bitmap.createScaledBitmap(viewToBitmap(cardView)!!, cardView.width, cardView.height, false)
-        val smallMarkerIcon1=BitmapDescriptorFactory.fromBitmap(bitmap1)
-        googleMap.addMarker(MarkerOptions().position(sydney1).icon(smallMarkerIcon1))
-
-        facu.text="FACULTAD DE CIENCIAS DE LA INGENIERÍA"
-        decano.text="Decano: Washington Chiriboga, M.Sc"
-        val bitmap2= Bitmap.createScaledBitmap(viewToBitmap(cardView)!!, cardView.width, cardView.height, false)
-        val smallMarkerIcon2=BitmapDescriptorFactory.fromBitmap(bitmap2)
-        googleMap.addMarker(MarkerOptions().position(sydney2).icon(smallMarkerIcon2))
-    }
     private fun viewToBitmap(view: View):Bitmap?{
         view.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED)
         val bitmap=Bitmap.createBitmap(view.measuredWidth, view.measuredHeight, Bitmap.Config.ARGB_8888)
