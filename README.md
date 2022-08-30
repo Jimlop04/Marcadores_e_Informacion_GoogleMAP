@@ -7,5 +7,7 @@
 ![Marcadores1](https://user-images.githubusercontent.com/87384300/187547096-3c474332-6d8f-48a2-a43a-730f0fe291f0.jpg)
 ## CardView con la informacion
 ![marcadorciencias](https://user-images.githubusercontent.com/87384300/187547171-8acf46de-a149-436e-aba0-dbfed3521980.jpg)
-### api utilizada en el siguiente enlace
+### La Api utilizada se encuentra en el siguiente enlace
 https://62ff92289350a1e548e1bee5.mockapi.io/Uteq_locations
+### Información contenida en la Api
+![image](https://user-images.githubusercontent.com/96128820/187551883-cfec6707-7a6c-4cfd-b367-454e6459555c.png)
