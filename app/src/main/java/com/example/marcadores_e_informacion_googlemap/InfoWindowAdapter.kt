@@ -48,6 +48,7 @@ class InfoWindowAdapter(val context: Context): GoogleMap.InfoWindowAdapter, OnMa
             map!!.tag = datos
             position=LatLng(datos.latitud,datos.longitud)
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(position,18f))
+            mMap.mapType=GoogleMap.MAP_TYPE_SATELLITE
         }
 
     }
